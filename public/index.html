@@ -1,0 +1,180 @@
+<!doctype html>
+<html>
+  <head>
+    <title>BandRec: Discover new bands!</title>
+    <link rel="stylesheet" href="css/style.css">
+  </head>
+
+  <body>
+    <div class="container">
+      <div id="login">
+        <h1 id="title">BandRec</h1>
+        <p id="subtitle">Tyred of the same music? Discover new bands based on your musical tastes! Just sit back and enjoy!</p>
+        <a href="/login" class="btnlog">Log in with Spotify</a>
+      </div>
+      <div id="loggedin">
+        <div id="user-profile">
+        </div>
+        <div id="oauth" style="display: none;">
+        </div>
+        <button class="btn btn-default" id="obtain-new-token" style="display: none;">Obtain new token using the refresh token</button>
+      </div>
+    </div>
+
+    <script id="user-profile-template">
+      <div class="media">
+        <div class="userloged"><img class="media-object" align="left" width="65" src="{{images.0.url}}" /> <p id="username"> {{display_name}}</p></div>
+        <div id='bandrate' class="bandrate" align="center">
+        <p> Please, rate this 3 bands from 1 to 10 (0 in case you do not know them) to find a band that met your tastes!</p>
+          <div class="bandinputs" align="center">
+            <p id="band0"><p> <input id="iband0" class="rateinput" type="number" ></input>
+            <p id="band1"><p> <input id="iband1" class="rateinput" type="number" ></input>
+            <p id="band2"><p> <input id="iband2" class="rateinput" type="number" ></input>
+          </div>
+        </div>
+        <div id='bandrated' class="bandrated" align="center">
+        <p> Your recommended band is...</p>
+        <h2 id = 'recomendedband'></h2>
+        </div>
+        <div id="recbtn" align="center"><button id="arecbtn" class="btnlog">Give me new music!</button></div>
+      </div>
+
+    </script>
+
+    <script id="oauth-template" type="text/x-handlebars-template">
+      <h2>oAuth info</h2>
+      <dl class="dl-horizontal">
+        <dt>Access token</dt><dd class="text-overflow">{{access_token}}</dd>
+
+        <dt>Refresh token</dt><dd class="text-overflow">{{refresh_token}}></dd>
+
+      </dl>
+    </script>
+
+    <script src="//cdnjs.cloudflare.com/ajax/libs/handlebars.js/2.0.0-alpha.1/handlebars.min.js"></script>
+    <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+    <script>
+
+      (function() {
+
+        /**
+         * Obtains parameters from the hash of the URL
+         * @return Object
+         */
+        function getHashParams() {
+          var hashParams = {};
+          var e, r = /([^&;=]+)=?([^&;]*)/g,
+              q = window.location.hash.substring(1);
+          while ( e = r.exec(q)) {
+             hashParams[e[1]] = decodeURIComponent(e[2]);
+          }
+          return hashParams;
+        }
+
+        var bands = [];
+        var recomendedband;
+
+        var userProfileSource = document.getElementById('user-profile-template').innerHTML,
+            userProfileTemplate = Handlebars.compile(userProfileSource),
+            userProfilePlaceholder = document.getElementById('user-profile');
+
+        var oauthSource = document.getElementById('oauth-template').innerHTML,
+            oauthTemplate = Handlebars.compile(oauthSource),
+            oauthPlaceholder = document.getElementById('oauth');
+
+        var params = getHashParams();
+
+        var access_token = params.access_token,
+            refresh_token = params.refresh_token,
+            error = params.error;
+
+        if (error) {
+          alert('There was an error during the authentication');
+        } else {
+          if (access_token) {
+            $('body').css("background-image", "url(../images/background2.jpg)");
+            // render oauth info
+            oauthPlaceholder.innerHTML = oauthTemplate({
+              access_token: access_token,
+              refresh_token: refresh_token
+            });
+
+            $.ajax({
+                url: 'https://api.spotify.com/v1/me',
+                headers: {
+                  'Authorization': 'Bearer ' + access_token
+                },
+                success: function(response) {
+                  userProfilePlaceholder.innerHTML = userProfileTemplate(response);
+                  $('#login').hide();
+                  $('#loggedin').show();
+                  $('#bandrated').hide();
+                  $.get( "/bands", function( data ) {
+                    bands = data;
+
+                    $('#band0').text(bands[0].toString());
+                    $('#band1').text(bands[1].toString());
+                    $('#band2').text(bands[2].toString());
+                  });   
+                  $( "#arecbtn" ).click(function() {
+                    var band0, band1, band2;
+                    band0 = $('#iband0').val();
+                    band1 = $( '#iband1' ).val();
+                    band2 = $( '#iband2' ).val();
+                    console.log(band1)
+                 
+                    $.post('/newrats',{band0: band0, band1: band1, band2: band2}, function(data){
+                        recomendedband = data;
+                        $('#bandrate').hide();
+                        $('#recbtn').hide();
+                        $('#bandrated').show();
+                        $('#recomendedband').text(recomendedband);
+                        var urla = "https://api.spotify.com/v1/search?q=" + encodeURIComponent(recomendedband.toString()) + "&type=artist";
+                        console.log(urla)
+                        $.get(urla,function( data ) {
+                          console.log(data.artists.items[0].images[1].url);
+                          console.log(data.artists.items[0].uri);
+                          $( "#bandrated" ).append( $( '<img src="' + data.artists.items[0].images[0].url + '"' + 'height="300" >' + '</img>' ));
+                          $( "#bandrated" ).append( $( '<a href="' + data.artists.items[0].uri + '"' + 'id="imp">' + 'Import to your Spotify Account!</a>' ) );
+                        }); 
+
+                    }
+
+
+
+                    );
+
+
+
+                  });
+
+ 
+
+                }
+            });
+          } else {
+              // render initial screen
+              $('#login').show();
+              $('#loggedin').hide();
+          }
+
+          document.getElementById('obtain-new-token').addEventListener('click', function() {
+            $.ajax({
+              url: '/refresh_token',
+              data: {
+                'refresh_token': refresh_token
+              }
+            }).done(function(data) {
+              access_token = data.access_token;
+              oauthPlaceholder.innerHTML = oauthTemplate({
+                access_token: access_token,
+                refresh_token: refresh_token
+              });
+            });
+          }, false);
+
+        }
+      })();
+    </script>
+</html>
+

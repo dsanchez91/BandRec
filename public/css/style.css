@@ -1,0 +1,132 @@
+body {
+    background: url(../images/background.jpg) no-repeat center center fixed;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+}
+
+
+#login, #loggedin {
+  display: none;
+  text-align: center;
+  margin-top: 260px;
+}
+
+#title {
+  color: white;
+  font-size: 50px;
+  font-family: palo seco; 
+  font-weight: 700;
+}
+
+#subtitle {
+  color: white;
+  font-family: arial; 
+  margin-bottom: 50px;
+}
+.userloged {
+  vertical-align: center;
+  text-align: left;
+  font-family: arial; 
+  height: 65px;
+  width: 250px;
+  border: 1px solid #1E679A; 
+  background-color: #C5C7C9; 
+}
+
+.media {
+vertical-align: top;
+position: absolute;
+top:10px;
+width: 100%;
+}
+
+#username {
+  position: relative;
+  color: darkblue;
+  width: 300px;
+  top: 10px;
+  left: 12px;
+  font-size: 15px;
+}
+
+#imp {
+  position: absolute;
+  top: 460px;
+  left: 510px;
+
+}
+
+.bandrate {
+  position:relative;
+  top: 50px;
+  text-align: center;
+  font-style: frosty;
+  font-size: 20px;
+}
+
+.bandrated {
+  position:relative;
+  top: 50px;
+  text-align: center;
+  font-style: frosty;
+  font-size: 20px;
+}
+
+input {
+  width: 100px;
+}
+
+.rateinput {
+  position: relative;
+  text-align: center;
+  font-style: frosty;
+
+}
+
+.bandinputs {
+  position: relative;
+  text-align: center;
+  font-style: frosty;
+  top:30px
+
+}
+
+#recbtn {
+  position: relative;
+  top:130px;
+}
+
+.btnlog{
+  background: #3498db;
+  background-image: -webkit-linear-gradient(top, #3498db, #2980b9);
+  background-image: -moz-linear-gradient(top, #3498db, #2980b9);
+  background-image: -ms-linear-gradient(top, #3498db, #2980b9);
+  background-image: -o-linear-gradient(top, #3498db, #2980b9);
+  background-image: linear-gradient(to bottom, #3498db, #2980b9);
+  -webkit-border-radius: 28;
+  -moz-border-radius: 28;
+  border-radius: 28px;
+  font-family: Arial;
+  color: #ffffff;
+  font-size: 20px;
+  padding: 10px 20px 10px 20px;
+  text-decoration: none;
+}
+.btnlog:hover {
+  background: #3cb0fd;
+  background-image: -webkit-linear-gradient(top, #3cb0fd, #3498db);
+  background-image: -moz-linear-gradient(top, #3cb0fd, #3498db);
+  background-image: -ms-linear-gradient(top, #3cb0fd, #3498db);
+  background-image: -o-linear-gradient(top, #3cb0fd, #3498db);
+  background-image: linear-gradient(to bottom, #3cb0fd, #3498db);
+  text-decoration: none;
+}
+
+.text-overflow {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 500px;
+}
